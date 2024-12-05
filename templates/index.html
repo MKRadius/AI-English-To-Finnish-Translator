@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English to Finnish translator</title>
+    <script>
+        async function sendStringToBeTranslated() {
+            const user_input = document.getElementById("text-input").value;
+            document.getElementById("result").innerText = "Translating...";
+            try {
+                const response = await fetch('/translate', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ text: user_input })
+                });
+                if (!response.ok) {
+                    throw new Error("Error: " + response.status);
+                }
+                const data = await response.json();
+
+                if (data.result == user_input) {
+                    document.getElementById("result").innerText = "No translation found for the given text.";
+                } else {
+                    document.getElementById("result").innerText = data.result;
+                }
+            } catch (error) {
+                document.getElementById("result").innerText = "Error: " + error.message;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>English to Finnish translator</h1>
+    <div>
+        <input type="text" id="text-input" placeholder="Enter text here">
+        <button onclick="sendStringToBeTranslated()">Submit</button>
+    </div>
+    <div>
+        <h2>Result:</h2>
+        <p id="result"></p>
+    </div>
+</body>
+</html>
