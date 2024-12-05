@@ -4,10 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>English to Finnish translator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script>
         async function sendStringToBeTranslated() {
             const user_input = document.getElementById("text-input").value;
-            document.getElementById("result").innerText = "Translating...";
+            const chatContainer = document.getElementById("chat-container");
+
+            if (user_input.trim() === "") {
+                const blankMessage = document.createElement("div");
+                blankMessage.classList.add("message", "response");
+                blankMessage.innerText = "Please type something to translate.";
+                chatContainer.appendChild(blankMessage);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                return;
+            }
+
+            const userMessage = document.createElement("div");
+            userMessage.classList.add("message", "user");
+            userMessage.innerText = user_input;
+            chatContainer.appendChild(userMessage);
+            document.getElementById("text-input").value = "";
+
+            const responseMessage = document.createElement("div");
+            responseMessage.classList.add("message", "response");
+            responseMessage.innerText = "Translating...";
+            chatContainer.appendChild(responseMessage);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
             try {
                 const response = await fetch('/translate', {
                     method: "POST",
@@ -22,25 +46,35 @@
                 const data = await response.json();
 
                 if (data.result == user_input) {
-                    document.getElementById("result").innerText = "No translation found for the given text.";
+                    responseMessage.innerText = "No translation found for the given text.";
                 } else {
-                    document.getElementById("result").innerText = data.result;
+                    responseMessage.innerText = data.result;
                 }
             } catch (error) {
-                document.getElementById("result").innerText = "Error: " + error.message;
+                document.getElementById("result").innerText = "Error occured. Please contact developer.";
+                console.error(error);
             }
+
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
     </script>
 </head>
 <body>
-    <h1>English to Finnish translator</h1>
-    <div>
-        <input type="text" id="text-input" placeholder="Enter text here">
-        <button onclick="sendStringToBeTranslated()">Submit</button>
-    </div>
-    <div>
-        <h2>Result:</h2>
-        <p id="result"></p>
-    </div>
+    <header>
+        <h1>English to Finnish Translator</h1>
+    </header>
+    
+    <main>
+        <section class="chat-box">
+            <div id="chat-container" class="chat-container">
+                <!-- Chat messages -->
+            </div>
+
+            <div class="input-container">
+                <input type="text" id="text-input" placeholder="Enter text here">
+                <button onclick="sendStringToBeTranslated()">Submit</button>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
